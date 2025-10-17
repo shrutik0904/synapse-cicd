@@ -1,0 +1,7 @@
+{
+	"name": "synapse-ws-custstgacct--synapse-dev-wrksp-shrutik",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/4e230fe3-792d-421c-9a50-b2e9f7351d18/resourceGroups/shruti_09_rg/providers/Microsoft.Storage/storageAccounts/shrutik",
+		"groupId": "dfs"
+	}
+}
