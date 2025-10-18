@@ -3,7 +3,7 @@ name: workspace deployment
 on:
     workflow_dispatch:  # allows manual trigger
     push:
-        branches: [ workspace_publish ]
+        branches: workspace_publish 
 jobs:
     release:
         # You also can use the self-hosted runners.
