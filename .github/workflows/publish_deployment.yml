@@ -23,7 +23,7 @@ jobs:
           TemplateFile: './synapse-dev-wrksp/TemplateForWorkspace.json'
           ParametersFile: './synapse-dev-wrksp/TemplateParametersForWorkspace.json'
           OverrideArmParameters: './parameters.yaml'
-          environment: 'Azure Public'
+          environment: 'AzurePublic'
           resourceGroup: 'shruti_09_rg'
           clientId: ${{ secrets.CLIENTID }}
           clientSecret: ${{ secrets.CLIENTSECRET }}
