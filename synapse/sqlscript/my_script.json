@@ -1,0 +1,17 @@
+{
+	"name": "my_script",
+	"properties": {
+		"content": {
+			"query": "SELECT 'Hello, World!' AS Message;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
