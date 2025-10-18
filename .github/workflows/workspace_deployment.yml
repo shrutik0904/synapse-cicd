@@ -1,6 +1,7 @@
 name: workspace deployment
 
 on:
+  workflow_dispatch: 
   push:
     branches:
       - workspace_publish
