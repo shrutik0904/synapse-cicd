@@ -1,0 +1,172 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Workspace name",
+			"defaultValue": "synapse-dev-wrksp"
+		},
+		"synapse-dev-wrksp-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'synapse-dev-wrksp-WorkspaceDefaultSqlServer'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:synapse-dev-wrksp.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"synapse-dev-wrksp-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://shrutik.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/synapse-dev-wrksp-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('synapse-dev-wrksp-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/synapse-dev-wrksp-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('synapse-dev-wrksp-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				},
+				"managedVirtualNetwork": {
+					"type": "ManagedVirtualNetworkReference",
+					"referenceName": "default"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/default')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-custstgacct--synapse-dev-wrksp-shrutik')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"privateLinkResourceId": "/subscriptions/4e230fe3-792d-421c-9a50-b2e9f7351d18/resourceGroups/shruti_09_rg/providers/Microsoft.Storage/storageAccounts/shrutik",
+				"groupId": "dfs"
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sql--synapse-dev-wrksp')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"privateLinkResourceId": "/subscriptions/4e230fe3-792d-421c-9a50-b2e9f7351d18/resourceGroups/shruti_09_rg/providers/Microsoft.Synapse/workspaces/synapse-dev-wrksp",
+				"groupId": "sql",
+				"fqdns": [
+					"synapse-dev-wrksp.ecbeb760-deb0-4240-932c-6f1b9ba13fc0.sql.azuresynapse.net"
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/default/synapse-ws-sqlOnDemand--synapse-dev-wrksp')]",
+			"type": "Microsoft.Synapse/workspaces/managedVirtualNetworks/managedPrivateEndpoints",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"privateLinkResourceId": "/subscriptions/4e230fe3-792d-421c-9a50-b2e9f7351d18/resourceGroups/shruti_09_rg/providers/Microsoft.Synapse/workspaces/synapse-dev-wrksp",
+				"groupId": "sqlOnDemand",
+				"fqdns": [
+					"synapse-dev-wrksp-ondemand.ecbeb760-deb0-4240-932c-6f1b9ba13fc0.sql.azuresynapse.net"
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/my_script')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT 'Hello, World!' AS Message;",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "master",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		}
+	]
+}
