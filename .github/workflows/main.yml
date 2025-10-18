@@ -1,0 +1,32 @@
+name: workspace deployment
+
+on:
+  push:
+    branches:
+      - workspace_publish
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      # Checkout repository so workflow can access template files
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Deploy Synapse workspace using the Azure Synapse deployment action
+      - name: Deploy Synapse workspace
+        uses: azure/synapse-workspace-deployment@release-1.0
+        with:
+          TargetWorkspaceName: 'synapse-uat-wrksp'
+          TemplateFile: './synapse-dev-wrksp/TemplateForWorkspace.json'
+          ParametersFile: './synapse-dev-wrksp/TemplateParametersForWorkspace.json'
+          OverrideArmParameters: './parameters.yaml'
+          environment: 'Azure Public'
+          resourceGroup: 'shruti_09_rg'
+          clientId: ${{ secrets.CLIENTID }}
+          clientSecret: ${{ secrets.CLIENTSECRET }}
+          subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
+          tenantId: ${{ secrets.TENANTID }}
+          DeleteArtifactsNotInTemplate: true
+          managedIdentity: false
