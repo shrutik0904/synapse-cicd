@@ -1,38 +1,27 @@
-name: publish synapse workspace
+name: workspace deployment
 
 on:
-  workflow_dispatch:  # allows manual trigger
-  push:
-    branches:
-      - main  # or dev (where your dev workspace syncs from)
-
+    workflow_dispatch:  # allows manual trigger
+    push:
+        branches: [ workspace_publish ]
 jobs:
-  publish:
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Azure Login
-        uses: azure/login@v1
+    release:
+        # You also can use the self-hosted runners.
+        runs-on: windows-latest
+        steps:
+        # Checks out your repository under $GITHUB_WORKSPACE, so your job can access it.
+          - uses: actions/checkout@v2
+          - uses: azure/synapse-workspace-deployment@release-1.0
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Publish Synapse Workspace Artifacts
-        uses: azure/synapse-artifacts-publish@v1.0
-        with:
-          SynapseWorkspaceName: 'synapse-dev-wrksp'
-          TargetFolder: './synapse-dev-wrksp'
+          TargetWorkspaceName: 'synapse-uat-wrksp'
+          TemplateFile: './synapse-dev-wrksp/TemplateForWorkspace.json'
+          ParametersFile: './synapse-dev-wrksp/TemplateParametersForWorkspace.json'
+          OverrideArmParameters: './parameters.yaml'
           environment: 'Azure Public'
           resourceGroup: 'shruti_09_rg'
-          subscriptionId: ${{ secrets.SUBSCRIPTIONID }}
-          tenantId: ${{ secrets.TENANTID }}
-
-      - name: Commit and push exported templates
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add .
-          git commit -m "Published Synapse workspace artifacts"
-          git push origin workspace_publish
+          clientId: ${{secrets.CLIENTID}}
+          clientSecret:  ${{secrets.CLIENTSECRET}}
+          subscriptionId: 'subscriptionId of the target workspace'
+          tenantId: 'tenantId'
+          DeleteArtifactsNotInTemplate: 'true'
+          managedIdentity: 'False'
