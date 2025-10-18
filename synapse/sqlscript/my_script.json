@@ -2,7 +2,7 @@
 	"name": "my_script",
 	"properties": {
 		"content": {
-			"query": "SELECT 'Hello, World!' AS Message;",
+			"query": "SELECT 'Hello, World this is a test sql script!' AS Message;",
 			"metadata": {
 				"language": "sql"
 			},
